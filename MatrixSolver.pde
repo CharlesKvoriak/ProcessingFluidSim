@@ -152,3 +152,83 @@ float checkAccuracy(float[] b, float[] x, int sze){
   
   return sqrt(diff);
 }
+
+float[][] gaussianEliminationSolve(float[][] A){
+  float maxPivot = 0;
+  int maxPivotIndex = -1;
+  float[] placeholder = new float[A[0].length];
+  float scaleDown;
+  
+  for(int pivotIndex = 0; pivotIndex < A.length; pivotIndex++){
+    maxPivot = 0;
+    maxPivotIndex = -1;
+    for(int j = pivotIndex; j < A.length; j++){
+      if(abs(A[j][pivotIndex]) > maxPivot){
+        maxPivot = abs(A[j][pivotIndex]);
+        maxPivotIndex = j;
+      }
+    }    
+    
+    if(maxPivotIndex == -1){
+      continue;
+    }
+    
+    else{
+      // Move row with greatest pivot to be on the diagonal.
+      arrayCopy(A[maxPivotIndex], placeholder);
+      arrayCopy(A[pivotIndex], A[maxPivotIndex]);
+      arrayCopy(placeholder, A[pivotIndex]);
+      for(int j = pivotIndex + 1; j < A.length; j++){
+        scaleDown = A[j][pivotIndex]/A[pivotIndex][pivotIndex];
+        println(scaleDown);
+        A[j][pivotIndex] = 0;
+        for(int k = pivotIndex + 1; k < A[j].length; k++){
+          A[j][k] = A[j][k] - A[pivotIndex][k] * scaleDown;
+        }
+      }
+    }
+    printMatrix(A);
+  }
+  
+  // Now reduce
+  // Scale all rows so that all entries on the diagonal are 1
+  for(int i = 0; i < A.length; i++){
+    for(int j = i+1; j < A[i].length; j++){
+      A[i][j] = A[i][j]/A[i][i];
+    }
+    A[i][i] = 1;
+  }
+  
+  printMatrix(A);
+  
+  // Iterate through each row and subtract lower rows from it so that all entries except for the diagonal and final entry are 0.
+  // First loop iterates through each row
+  for(int i = 0; i < A.length; i++){
+    // Second loop iterates through each element of the above the diagonal, these are the elements that can be eliminated.
+    for(int j = i + 1; j < A.length; j++){
+      // Third loop applies a row operation to cancel out the element that the second loop is on.
+      for(int k = j + 1; k < A.length; k++){
+        //println(A[j][k] + " and " + A[i][j]);
+        A[i][k] = A[i][k] - A[j][k] * A[i][j];
+      }
+      A[i][j] = 0;
+      //println(i + ", " + j);
+      //printMatrix(A);
+      }
+  }
+  
+  //printMatrix(A);
+  
+  return A;
+}
+
+void printMatrix(float[][] A){
+  for(int i = 0; i < A.length; i++){
+    String printout = "";
+    for(int j = 0; j < A[i].length; j++){
+      printout += A[i][j] + ", ";
+    }
+    println(printout);
+  }
+  println();
+}
